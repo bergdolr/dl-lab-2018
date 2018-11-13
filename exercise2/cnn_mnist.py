@@ -64,21 +64,23 @@ def mnist(datasets_dir='./data'):
 def train_and_validate(x_train, y_train, x_valid, y_valid, num_epochs, lr, num_filters, batch_size, filter_size):
     # TODO: train and validate your convolutional neural networks with the provided data and hyperparameters
     model = keras.Sequential([
-        keras.layers.Conv2d(num_filters, filter_size, input_shape=(28, 28, 1), activation=tf.nn.relu),
-        keras.layers.MaxPool2D(2),
-        keras.layers.Conv2d(num_filters, filter_size, activation=tf.nn.relu),
-        keras.layers.MaxPool2D(2),
-        keras.layers.Dense(128, activation=tf.nn.softmax)
+        keras.layers.Conv2D(num_filters, filter_size, input_shape=(28, 28, 1), activation=tf.nn.relu, padding="same"),
+        keras.layers.MaxPool2D(2, padding="same"),
+        keras.layers.Conv2D(num_filters, filter_size, activation=tf.nn.relu, padding="same"),
+        keras.layers.MaxPool2D(2, padding="same"),
+	keras.layers.Flatten(),
+        keras.layers.Dense(128, activation=tf.nn.relu),
+        keras.layers.Dense(10, activation=tf.nn.softmax)
     ])
 
     model.compile(optimizer=keras.optimizers.SGD(lr=lr),
-                  loss="softmax_cross_entropy",
+                  loss="categorical_crossentropy",
                   metrics=["accuracy"])
 
-    learning_curve = model.fit(x_train, y_train, epochs=num_epochs, batch_size=batch_size,
-                               validation_data=(x_valid, y_valid))
+    hist = model.fit(x_train, y_train, epochs=num_epochs, batch_size=batch_size,
+                               validation_data=[x_valid, y_valid])
 
-    print(learning_curve)
+    learning_curve = hist.history
 
     return learning_curve, model  # TODO: Return the validation error after each epoch (i.e learning curve) and your model
 
