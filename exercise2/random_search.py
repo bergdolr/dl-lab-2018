@@ -10,7 +10,7 @@ import ConfigSpace as CS
 from hpbandster.core.worker import Worker
 import argparse
 
-from cnn_mnist_solution import mnist
+from cnn_mnist import mnist, train_and_validate
 
 
 class MyWorker(Worker):
@@ -39,6 +39,10 @@ class MyWorker(Worker):
         epochs = budget
 
         # TODO: train and validate your convolutional neural networks here
+        model, learning_curve= train_and_validate(self.x_train, self.y_train, self.x_valid, self.y_valid, int(budget),
+                                                  lr, num_filters, batch_size, filter_size)
+
+        validation_error = 1 - learning_curve["val_acc"][-1]
 
         # TODO: We minimize so make sure you return the validation error here
         return ({
@@ -51,6 +55,12 @@ class MyWorker(Worker):
         config_space = CS.ConfigurationSpace()
 
         # TODO: Implement configuration space here. See https://github.com/automl/HpBandSter/blob/master/hpbandster/examples/example_5_keras_worker.py  for an example
+        lr = CSH.UniformFloatHyperparameter('learning_rate', lower=1e-4, upper=1e-1, default_value='1e-3', log=True)
+        batch_size = CSH.UniformIntegerHyperparameter('batch_size', lower=16, upper=128, default_value='128', log=True)
+        num_filters = CSH.UniformIntegerHyperparameter('num_filters', lower=2e3, upper=2e6, default_value='2e5', log=True)
+        filter_size = CSH.CategoricalHyperparameter('filter_size', [3, 5])
+
+        config_space.add_hyperparameters([lr, batch_size, num_filters, filter_size])
 
         return config_space
 
@@ -114,3 +124,11 @@ import matplotlib.pyplot as plt
 plt.savefig("random_search.png")
 
 # TODO: retrain the best configuration (called incumbent) and compute the test error
+best_config = id2config[incumbent]['config']
+model, _ = train_and_validate(w.x_train, w.y_train, w.x_valid, w.y_valid, int(args.budget),
+                              best_config["learning_rate"], best_config["num_filters"],
+                              best_config["batch_size"], beat_config["filter_size"])
+
+_, test_acc = model.evaluate(w.x_test, w.y_test)
+
+print('Test error:', 1 - test_acc)
