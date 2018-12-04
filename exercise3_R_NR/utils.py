@@ -46,3 +46,13 @@ def action_to_id(a):
     elif all(a == [1.0, 0.0, 0.2]): return BRAKE_RIGHT             # BRAKE_RIGHT: 8
     else:       
         return STRAIGHT                                      # STRAIGHT = 0
+    
+def unhot_to_action(y):
+    a_index = np.argmax(y)
+    a = [0.0, 0.0, 0.0, 0.0]
+    if a_index in [LEFT,  ACCELERATE_LEFT,  BRAKE_LEFT]: a[0] = -1.0
+    if a_index in [RIGHT,  ACCELERATE_RIGHT,  BRAKE_RIGHT]: a[0] = 1.0
+    if a_index in [ACCELERATE,  ACCELERATE_LEFT,  ACCELERATE_RIGHT]: a[1] = 1.0
+    if a_index in [BRAKE,  BRAKE_LEFT,  BRAKE_RIGHT]: a[2] = 0.2
+    
+    return a

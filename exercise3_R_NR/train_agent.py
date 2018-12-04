@@ -86,7 +86,7 @@ def train_model(X_train, y_train, X_valid, y_valid,  n_minibatches, batch_size, 
 
 
     # TODO: specify your neural network in model.py 
-    agent = Model(X_train.shape[1:], y_train.shape[1],  lr)
+    agent = Model(input_shape=X_train.shape[1:], n_classes=y_train.shape[1],  learning_rate=lr)
     
     tensorboard_eval = Evaluation(tensorboard_dir)
     
@@ -99,6 +99,7 @@ def train_model(X_train, y_train, X_valid, y_valid,  n_minibatches, batch_size, 
     # training loop
     for i in range(n_minibatches):
         X_batch,  y_batch = sample_minibatch(X_train,  y_train,  batch_size)
+        print(X_batch.shape)
         _,  loss = agent.session.run([agent.optimizer,  agent.loss],  
                                         feed_dict={agent.X : X_batch,  agent.y : y_batch})
         
@@ -106,11 +107,12 @@ def train_model(X_train, y_train, X_valid, y_valid,  n_minibatches, batch_size, 
         if i % 10 == 0:
             train_acc = agent.accuracy.eval({agent.X : X_batch,  agent.y : y_batch},  session=agent.session)
             val_acc = agent.accuracy.eval({agent.X : X_valid,  agent.y : y_valid},  session=agent.session)
-            tensorboard_eval.write_episode_data(i,  {"loss" : agent.loss,  "train_acc" : train_acc,  "val_acc" : val_acc})
+            tensorboard_eval.write_episode_data(i,  {"loss" : loss,  "train_acc" : train_acc,  "val_acc" : val_acc})
       
     # TODO: save your agent
-    model_dir = agent.save(os.path.join(model_dir, "agent.ckpt"))
-    print("Model saved in file: %s" % model_dir)
+    model_path = os.path.join(model_dir, "agent.ckpt")
+    model_dir = agent.save(model_path)
+    print("Model saved in file: %s" % model_path)
 
 
 def sample_minibatch(X,  y,  batch_size):
