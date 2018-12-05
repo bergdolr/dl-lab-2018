@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     # TODO: load agent
     agent = Model()
-    agent.load("models/agent.ckpt")
+    agent.load("model_short/agent.ckpt")
 
     env = gym.make('CarRacing-v0').unwrapped
 

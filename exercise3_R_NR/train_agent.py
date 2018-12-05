@@ -99,12 +99,11 @@ def train_model(X_train, y_train, X_valid, y_valid,  n_minibatches, batch_size, 
     # training loop
     for i in range(n_minibatches):
         X_batch,  y_batch = sample_minibatch(X_train,  y_train,  batch_size)
-        print(X_batch.shape)
         _,  loss = agent.session.run([agent.optimizer,  agent.loss],  
                                         feed_dict={agent.X : X_batch,  agent.y : y_batch})
         
-        
         if i % 10 == 0:
+            print("... %i / %i" % (i,  n_minibatches))
             train_acc = agent.accuracy.eval({agent.X : X_batch,  agent.y : y_batch},  session=agent.session)
             val_acc = agent.accuracy.eval({agent.X : X_valid,  agent.y : y_valid},  session=agent.session)
             tensorboard_eval.write_episode_data(i,  {"loss" : loss,  "train_acc" : train_acc,  "val_acc" : val_acc})
