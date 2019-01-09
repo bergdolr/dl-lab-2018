@@ -8,14 +8,26 @@ import numpy as np
 import os
 import json
 from datetime import datetime
+import argparse
 
 np.random.seed(0)
 
 if __name__ == "__main__":
 
     env = gym.make("CarRacing-v0").unwrapped
+    
+    # argument parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model", default="./models_carracing/dqn_agent.ckpt", type=str, nargs="?",
+                        help="Path to the model")
+    parser.add_argument("--episodes", default=15, type=int, nargs="?",
+                        help="Number of test episodes")
+    parser.add_argument("--history_length", default=0, type=int, nargs="?",
+                        help="History length used for the given model")
+    args = parser.parse_args()
 
-    history_length =  0
+
+    history_length =  args.history_length
 
     #TODO: Define networks and load agent
     # ....
@@ -26,10 +38,9 @@ if __name__ == "__main__":
     
     agent = DQNAgent(Q,  Q_target,  5)
     
-    model_dir="./models_carracing"
-    agent.load(os.path.join(model_dir, "dqn_agent.ckpt"))
+    agent.load(args.model)
 
-    n_test_episodes = 15
+    n_test_episodes = args.episodes
 
     episode_rewards = []
     for i in range(n_test_episodes):
